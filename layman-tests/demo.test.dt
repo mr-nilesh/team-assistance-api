@@ -1,0 +1,20 @@
+suite -> "Login Screen"
+  suite -> "Negative scenarios"
+    scenario -> "Valid username wrong password"
+      id="username" -> input="grow_admin@wmsight.com"
+      name="password" -> input="test"
+      id="login-btn" -> click
+      id="success-message" -> equal="PO creatred successfully."
+      pause=2000
+    end
+  end
+  suite -> "Positive scenarios"
+    scenario -> "Valid username and valid password"
+      id="username" -> input="grow_admin@wmsight.com"
+      id="password" -> input="WMSight1!"
+      id="login-btn" -> click
+      name="temp" -> shouldBeEnabled
+      id="submit" -> shouldBeDisabled
+    end
+  end
+end

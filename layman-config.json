@@ -1,0 +1,5 @@
+{
+  "browserAlias": "browser",
+  "specs": "layman-tests/**/**.dt",
+  "output": "generated-tests"
+}
