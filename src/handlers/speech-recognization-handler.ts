@@ -7,8 +7,8 @@ async function EnrollUser(enrollObj: any) {
     body: enrollObj,
     json: true,
     headers: {
-      'apikey': config.deepAffectsAPIKey
-    }
+      'apikey': config.deepAffectsAPIKey,
+    },
   };
   return request.post(requestOptions)
     .then((data: any) => {
@@ -19,5 +19,5 @@ async function EnrollUser(enrollObj: any) {
 }
 
 export default {
-  EnrollUser
+  EnrollUser,
 };

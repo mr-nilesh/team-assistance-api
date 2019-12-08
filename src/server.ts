@@ -7,8 +7,9 @@ import BaseRouter from './routes';
 import * as models from '@models';
 import mongoose from 'mongoose';
 import bodyParser = require('body-parser');
+import cors = require('cors') ;
 
-const GLOBAL_VARS:any = global;
+const GLOBAL_VARS: any = global;
 // Init express
 const app = express();
 
@@ -22,14 +23,26 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', BaseRouter);
 
+// const corsOptions = {
+//   origin: 'http://localhost:8102',
+//   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+// };
+
+// app.use(cors(corsOptions));
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*'); // update to match the domain you will make the request from
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
 mongoose.connect('mongodb://localhost:27017/team-assistance', {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 }).then(
   (data: any) => {
     console.log('Successfully connected to Mongo.');
-  }
-)
+  },
+);
 
 /**
  * Point express to the 'views' directory. If you're using a
