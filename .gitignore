@@ -1,3 +1,7 @@
 node_modules/
 dist/
 logs/
+sample-audio-*.mp3
+sample-audio.mp3
+speech-output.txt
+package-lock.json

@@ -1,4 +1,4 @@
-import User, { IUser } from '@models';
+import Models, { IUser } from '@models';
 import Handlers from '@handlers';
 
 interface ICreateUserInput {
@@ -22,10 +22,10 @@ async function CreateUser({
   enrollmentStatus,
   enrollmentAudio
 }: ICreateUserInput): Promise<any> {
-  return User.findOne({mobile: mobile})
+  return Models.User.findOne({mobile: mobile})
     .then((data: any) => {
       if(!data) {
-        return User.create({
+        return Models.User.create({
           fullName,
           mobile,
           speechRecognizationID,
@@ -62,7 +62,7 @@ async function CreateUser({
 }
 
 async function GetUsers(): Promise<IUser[]> {
-  return User.find({})
+  return Models.User.find({})
     .then((data) => {
       return data;
     })
@@ -74,7 +74,7 @@ async function GetUsers(): Promise<IUser[]> {
 async function GetUser({
   mobile
 }: IGetUserInput): Promise<IUser> {
-  return User.findOne({
+  return Models.User.findOne({
     mobile
   })
     .then((data: any) => {
@@ -86,7 +86,7 @@ async function GetUser({
 }
 
 async function UpdateUser(id: string, updateObj: any): Promise<IUser> {
-  return User.findOneAndUpdate({id: id}, updateObj)
+  return Models.User.findOneAndUpdate({id: id}, updateObj)
     .then((data: any) => {
       return data;
     })
