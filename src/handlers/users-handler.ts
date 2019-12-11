@@ -36,12 +36,12 @@ async function CreateUser({
             console.log('User added successfully.');
             const enrollObj = {
               content: enrollmentAudio,
-              sampleRate: 8000,
-              encoding: 'FLAC',
+              sampleRate: 44100,
+              encoding: 'MP3',
               languageCode: 'en-US',
               speakerId: data.id
             };
-            console.log('Enrolling user...');
+            console.log('Enrolling user...', enrollObj);
             return Handlers.SpeechRecognizationHandlers.EnrollUser(enrollObj)
             .then((daResponse: any) => {
               if (daResponse.message === 'Success') {
