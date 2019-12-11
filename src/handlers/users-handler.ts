@@ -1,5 +1,7 @@
 import Models, { IUser } from '@models';
 import Handlers from '@handlers';
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId;
 
 interface ICreateUserInput {
   fullName: IUser['fullName'];
@@ -86,12 +88,33 @@ async function GetUser({
 }
 
 async function UpdateUser(id: string, updateObj: any): Promise<IUser> {
-  return Models.User.findOneAndUpdate({id: id}, updateObj)
+  return Models.User.findOneAndUpdate({_id: id}, updateObj, {new: true})
     .then((data: any) => {
-      return data;
+      if(updateObj.enrollmentAudio) {
+        console.log('User updated successfully.');
+        const enrollObj = {
+          content: updateObj.enrollmentAudio,
+          sampleRate: 44100,
+          encoding: 'MP3',
+          languageCode: 'en-US',
+          speakerId: id
+        };
+        console.log('Enrolling user...', enrollObj);
+        return Handlers.SpeechRecognizationHandlers.EnrollUser(enrollObj)
+        .then((daResponse: any) => {
+          if (daResponse.message === 'Success') {
+            console.log(`User ${data.fullName} enrolled successfully.`);
+          }
+          const copyOfUser = JSON.parse(JSON.stringify(data));
+          copyOfUser.enrollmentStatus = daResponse.message
+          return copyOfUser;
+        });
+      } else {
+        return data;
+      }
     })
     .catch((error: Error) => {
-      throw error;
+      return 'No records found.';
     });
 }
 

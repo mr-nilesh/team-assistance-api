@@ -44,4 +44,15 @@ router.get('/:mobile', async (req, res) => {
   return res.status(200).send({ user });
 });
 
+router.put('/:id', async (req, res) => {
+  const user = await Handlers.UserHandlers.UpdateUser(
+    req.params.id,
+    {
+      fullName: req.body.fullName,
+      enrollmentAudio: req.body.enrollmentAudio
+    }
+  );
+  return res.status(200).send(user);
+});
+
 export default router;

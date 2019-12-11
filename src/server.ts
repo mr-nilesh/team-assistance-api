@@ -34,7 +34,9 @@ mongoose.connect('mongodb://localhost:27017/team-assistance', {
   (data: any) => {
     console.log('Successfully connected to Mongo.');
   }
-)
+);
+
+mongoose.set('useFindAndModify', false);
 
 /**
  * Point express to the 'views' directory. If you're using a
