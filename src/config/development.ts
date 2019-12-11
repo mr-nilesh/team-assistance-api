@@ -1,4 +1,4 @@
 export default
 {
-  deepAffectsAPIKey: 'fEWNTHCN76HVKDrHvAinYqPAMH6u9MuB'
+  deepAffectsAPIKey: 'Sm3I5nHiauniGl55wOsn9sZFmK0whSRl'
 };
