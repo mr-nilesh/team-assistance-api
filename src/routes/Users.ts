@@ -45,10 +45,14 @@ router.get('/:mobile', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+  const updateObj: any = {};
+  if(req.body.fullName) {
+    updateObj.fullName = req.body.fullName;
+  }
   const user = await Handlers.UserHandlers.UpdateUser(
     req.params.id,
+    updateObj,
     {
-      fullName: req.body.fullName,
       enrollmentAudio: req.body.enrollmentAudio
     }
   );

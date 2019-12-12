@@ -34,6 +34,7 @@
     "module-alias": "^2.2.2",
     "mongoose": "^5.7.13",
     "morgan": "^1.9.1",
+    "node-slack": "0.0.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "winston": "^3.2.1"

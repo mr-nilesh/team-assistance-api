@@ -24,7 +24,7 @@ async function SpeechToText(postObj: any) {
   const requestOptions = {
     method: 'POST',
     uri: `https://proxy.api.deepaffects.com/audio/generic/api/v2/sync/diarization/identify?apikey=${config.deepAffectsAPIKey}`,
-    // uri: `https://proxy.api.deepaffects.com/audio/generic/api/v1/sync/asr?apikey=${config.deepAffectsAPIKey}`,
+    // uri: `https://proxy.api.deepaffects.com/audio/generic/api/v1/async/asr?apikey=${config.deepAffectsAPIKey}&webhook=https://webhook.site/ef5fa8db-b831-4017-b123-08f11a9e60d0`,
     body: postObj,
     json: true,
     headers: {
@@ -103,6 +103,7 @@ async function ConvertAudioToText(filePath: any) {
 }
 
 async function ConvertAudioToTextSync(filePath: any) {
+  console.log(`Converting audio to text for ${filePath}`);
   const _ = require('lodash');
   const speech = require('@google-cloud/speech');
   const fs = require('fs');
@@ -138,6 +139,7 @@ async function ConvertAudioToTextSync(filePath: any) {
       const transcription = results
         .map((result: any) => result.alternatives[0].transcript)
         .join('\n');
+      console.log(`Got text for ${filePath}, text is: ${transcription}`);
       return transcription;
     })
     .catch((err: any) => {

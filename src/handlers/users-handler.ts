@@ -87,13 +87,13 @@ async function GetUser({
     });
 }
 
-async function UpdateUser(id: string, updateObj: any): Promise<IUser> {
+async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Promise<IUser> {
   return Models.User.findOneAndUpdate({_id: id}, updateObj, {new: true})
     .then((data: any) => {
-      if(updateObj.enrollmentAudio) {
+      if(enrollmentObj.enrollmentAudio) {
         console.log('User updated successfully.');
         const enrollObj = {
-          content: updateObj.enrollmentAudio,
+          content: enrollmentObj.enrollmentAudio,
           sampleRate: 44100,
           encoding: 'MP3',
           languageCode: 'en-US',
