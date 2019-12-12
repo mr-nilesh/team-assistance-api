@@ -1,6 +1,9 @@
 import request = require('request-promise');
 import config from '../config/development';
 import fs from 'fs';
+import Handlers from '@handlers';
+const { exec } = require('child_process');
+const _ = require('lodash');
 
 async function EnrollUser(enrollObj: any) {
   const requestOptions = {
@@ -148,9 +151,84 @@ async function ConvertAudioToTextSync(filePath: any) {
     });
 }
 
+async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel: string, meetingData: any, userData: any) {
+  console.log('Processing audio file. Removing previous audio files.');
+  exec(`rm -rf sample-audio-*.mp3 speech-output.txt`, (err: any) => {
+    fs.writeFile(
+      'sample-audio.mp3',
+      base64Audio,
+      {
+        encoding: 'base64'
+      },
+      async (err) => {
+        fs.appendFile('speech-output.txt', '', (err: any) => {});
+        let previousSpeaker: string = '';
+        await generateAudioChunks(segments, async (segment: any, index: number) => {
+          return new Promise((resolve: any, reject: any) => {
+            exec(`ffmpeg -i sample-audio.mp3 -ss ${segment.start} -to ${segment.end} -c copy sample-audio-${index}.mp3`, (err: any, stdout: any, stderr: any) => {
+              console.log(`Generated sample-audio-${index}.mp3 file.`);
+              setTimeout(() => {
+                Handlers.SpeechRecognizationHandlers.ConvertAudioToTextSync(`sample-audio-${index}.mp3`)
+                  .then((data: any) => {
+                    if(data && data.length > 0) {
+                      const speackerName = userData[segment.speaker_id] || 'Someone';
+                      let speakerSaidStr: string = ''; 
+                      if(speackerName !== previousSpeaker) {
+                        speakerSaidStr = `${speackerName} said:`;
+                      }
+                      previousSpeaker = speackerName;
+                      fs.appendFile('speech-output.txt',`${speakerSaidStr} ${data}\n`, (err: any) => {});
+                      resolve(data);
+                    } else {
+                      resolve(data);
+                    }
+                  }, (err: any) => {
+                    console.log('ERROR', err);
+                    reject(err);
+                  });
+              }, 1000);
+            });
+          });
+        });
+        console.log('Finished converting audio to speech.');
+        if(slackChannel) {
+          console.log('Posting result to slack.');
+          sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt');
+        }
+      }
+    );
+  });
+}
+
+async function generateAudioChunks(segments: any, callback: any) {
+  console.log('Before for loop.');
+  for(let index=0; index < segments.length; index++) {
+    console.log('await index:', index);
+    await callback(segments[index], index, segments);
+    console.log('finished index:', index);
+  }
+  console.log('After for loop.');
+
+}
+
+function sendMessageToChannel(channelId: string, meetingName: string, textFile: string) {
+  const formData = {
+    file: fs.createReadStream(textFile),
+    filename: meetingName,
+    channels: channelId
+  };
+  Handlers.SlackHandlers.UploadFileToChannel(formData)
+    .then((data: any) => {
+      console.log('data', data);
+    }, (err) => {
+      console.log('err', err);
+    });
+}
+
 export default {
   EnrollUser,
   SpeechToText,
   ConvertAudioToText,
-  ConvertAudioToTextSync
+  ConvertAudioToTextSync,
+  ProcessAudioFile
 };

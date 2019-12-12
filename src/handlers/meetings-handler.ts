@@ -1,6 +1,5 @@
 import Models, { IMeeting } from '@models';
 import Handlers from '@handlers';
-const Slack = require('node-slack');
 
 async function DiarizeAudio(speechToTextObj: any) {
   console.log('Calling speaker diarization API...');
@@ -28,11 +27,12 @@ async function CreateMeeting(meetingObj: any) {
     });
 }
 
-function PostToSlack() {
-  // var slack = new Slack(hook_url,options);
+async function GetMeeting(id: string) {
+  return Models.Meeting.findOne({_id: id})
 }
 
 export default {
   DiarizeAudio,
-  CreateMeeting
+  CreateMeeting,
+  GetMeeting
 };
