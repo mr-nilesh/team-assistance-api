@@ -35,6 +35,7 @@ async function GetMeeting(id: string) {
   return Models.Meeting.findOne({_id: id})
 }
 
+
 export default {
   DiarizeAudio,
   CreateMeeting,

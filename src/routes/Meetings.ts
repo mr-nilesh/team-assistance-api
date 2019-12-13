@@ -6,6 +6,11 @@ let userData: any = {};
 
 // Init shared
 const router = Router();
+router.use((req, res, next)  => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 router.post('/', async (req, res) => {
   const meetingObj = {
@@ -18,6 +23,19 @@ router.post('/', async (req, res) => {
       return res.status(200).send(meeting);
     }, (err) => {
       return res.status(500).send(err);
+    });
+});
+
+// router.get('/', async (req, res) => {
+//   Handlers.MeetingHandlers.UpdateMeeting()
+// });
+
+router.get('/meetingId', async (req, res) => {
+  Handlers.MeetingHandlers.GetMeeting(req.params.meetingId)
+    .then((data: any) => {
+      res.status(200).send(data);
+    }, (err: any) => {
+      res.status(204);
     });
 });
 
