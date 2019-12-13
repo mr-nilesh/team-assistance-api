@@ -1,13 +1,11 @@
-// @ts-ignore
-import cookieParser = require('cookie-parser');
-// @ts-ignore
-import express = require('express');
-// @ts-ignore
-import logger = require('morgan');
-import path = require('path');
+import cookieParser from 'cookie-parser';
+import express from 'express';
+import { Request, Response } from 'express';
+import logger from 'morgan';
+import path from 'path';
 import BaseRouter from './routes';
-import mongoose = require('mongoose');
-// @ts-ignore
+import * as models from '@models';
+import mongoose from 'mongoose';
 import bodyParser = require('body-parser');
 
 const GLOBAL_VARS:any = global;
@@ -16,7 +14,7 @@ const app = express();
 
 app.use(bodyParser.json({limit: '10mb'}))
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
-app.use((req: any, res: any, next: any) => {
+app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
