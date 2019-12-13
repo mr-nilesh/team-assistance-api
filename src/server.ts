@@ -1,11 +1,15 @@
+// @ts-ignore
 import cookieParser from 'cookie-parser';
+// @ts-ignore
 import express from 'express';
 import { Request, Response } from 'express';
+// @ts-ignore
 import logger from 'morgan';
 import path from 'path';
 import BaseRouter from './routes';
 import * as models from '@models';
 import mongoose from 'mongoose';
+// @ts-ignore
 import bodyParser = require('body-parser');
 
 const GLOBAL_VARS:any = global;
