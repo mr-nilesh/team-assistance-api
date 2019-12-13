@@ -5,7 +5,7 @@ export interface IUser extends Document {
   mobile: string;
   speechRecognizationID: string;
   enrollmentStatus: string;
-  enrollmentAudio: string
+  enrollmentAudio: string;
 }
 
 const UserSchema: Schema = new Schema({

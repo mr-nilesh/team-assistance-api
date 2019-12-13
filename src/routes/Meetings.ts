@@ -61,7 +61,7 @@ router.put('/:meetingId', async (req, res) => {
           Handlers.MeetingHandlers.DiarizeAudio(speechToTextObj)
           .then((data: any) => {
             if(data.segments) {
-              Handlers.SpeechRecognizationHandlers.ProcessAudioFile(req.body.meetingAudio, data.segments, slackChannel, meetingData, userData);
+              Handlers.SpeechRecognizationHandlers.ProcessAudioFile(req.body.meetingAudio, data.segments, slackChannel, meetingData, userData, req.params.meetingId);
               return res.status(200).send({data: 'Processing audio file.'});
             } else {
               return res.status(400).send(data.error);

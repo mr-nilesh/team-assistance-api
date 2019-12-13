@@ -2,8 +2,8 @@ import request = require('request-promise');
 import config from '../config/development';
 import fs from 'fs';
 import Handlers from '@handlers';
+
 const { exec } = require('child_process');
-const _ = require('lodash');
 
 async function EnrollUser(enrollObj: any) {
   const requestOptions = {
@@ -151,7 +151,7 @@ async function ConvertAudioToTextSync(filePath: any) {
     });
 }
 
-async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel: string, meetingData: any, userData: any) {
+async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel: string, meetingData: any, userData: any, meetingId: string) {
   console.log('Processing audio file. Removing previous audio files.');
   exec(`rm -rf sample-audio-*.mp3 speech-output.txt`, (err: any) => {
     fs.writeFile(
@@ -190,10 +190,25 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
             });
           });
         });
+        const fileData = fs.readFileSync('speech-output.txt');
+        const base64FileString = fileData.toString('base64');
+
+        const updateUserObj: any = {
+          meetingText: Buffer.from(base64FileString, 'base64')
+        };
+        Handlers.MeetingHandlers.UpdateMeeting(meetingId, updateUserObj)
+          .then((data: any) => {
+            console.log('Meeting note added to collection successfully.');
+          })
         console.log('Finished converting audio to speech.');
         if(slackChannel) {
           console.log('Posting result to slack.');
-          sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt');
+          sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt')
+          .then((data: any) => {
+            console.log('Upload file to slack channel response: ', data);
+          }, (err: any) => {
+            console.log('Error while uploading file to slack channel: ', err);
+          });
         }
       }
     );
@@ -211,18 +226,13 @@ async function generateAudioChunks(segments: any, callback: any) {
 
 }
 
-function sendMessageToChannel(channelId: string, meetingName: string, textFile: string) {
+async function sendMessageToChannel(channelId: string, meetingName: string, textFile: string) {
   const formData = {
     file: fs.createReadStream(textFile),
     filename: meetingName,
     channels: channelId
   };
-  Handlers.SlackHandlers.UploadFileToChannel(formData)
-    .then((data: any) => {
-      console.log('data', data);
-    }, (err) => {
-      console.log('err', err);
-    });
+  return Handlers.SlackHandlers.UploadFileToChannel(formData)
 }
 
 export default {

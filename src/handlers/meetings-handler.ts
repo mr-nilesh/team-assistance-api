@@ -27,6 +27,10 @@ async function CreateMeeting(meetingObj: any) {
     });
 }
 
+async function UpdateMeeting(id: string, meetingObj: any) {
+  return Models.Meeting.findOneAndUpdate({_id: id}, meetingObj)
+}
+
 async function GetMeeting(id: string) {
   return Models.Meeting.findOne({_id: id})
 }
@@ -34,5 +38,6 @@ async function GetMeeting(id: string) {
 export default {
   DiarizeAudio,
   CreateMeeting,
-  GetMeeting
+  GetMeeting,
+  UpdateMeeting
 };

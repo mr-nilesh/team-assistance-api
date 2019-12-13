@@ -37,6 +37,7 @@ async function PostMessageToChannel(messageObj: any) {
 }
 
 async function UploadFileToChannel(messageObj: any) {
+  console.log(config.slackAPIToken, 'config.slackAPIToken--')
   const requestOptions = {
     method: 'POST',
     uri: `https://slack.com/api/files.upload?token=${config.slackAPIToken}`,

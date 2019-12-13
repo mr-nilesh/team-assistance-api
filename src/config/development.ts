@@ -1,5 +1,5 @@
 export default
 {
   deepAffectsAPIKey: 'K5SDR8jRoL69zyCCNPlMVcrhIOc9w75Z',
-  slackAPIToken: 'xoxp-873221873094-858231471426-871089855616-e2f616e574ba04a45ea5870031035e23'
+  slackAPIToken: process.env.TEAM_ASSISTANCE_SLACK_KEY
 };
