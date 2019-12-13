@@ -3,10 +3,10 @@ import cookieParser = require('cookie-parser');
 // @ts-ignore
 import express = require('express');
 // @ts-ignore
-import logger from 'morgan';
-import path from 'path';
+import logger = require('morgan');
+import path = require('path');
 import BaseRouter from './routes';
-import mongoose from 'mongoose';
+import mongoose = require('mongoose');
 // @ts-ignore
 import bodyParser = require('body-parser');
 
