@@ -25,10 +25,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api', BaseRouter);
 app.use('/', (req, res) => {
   res.send('Team Assistance API Started...');
 });
-app.use('/api', BaseRouter);
 const mongoString: any = config.mongoConnectionString;
 mongoose.connect(mongoString, {
   useNewUrlParser: true,
