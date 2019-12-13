@@ -2,12 +2,10 @@
 import cookieParser from 'cookie-parser';
 // @ts-ignore
 import express from 'express';
-import { Request, Response } from 'express';
 // @ts-ignore
 import logger from 'morgan';
 import path from 'path';
 import BaseRouter from './routes';
-import * as models from '@models';
 import mongoose from 'mongoose';
 // @ts-ignore
 import bodyParser = require('body-parser');
@@ -18,7 +16,7 @@ const app = express();
 
 app.use(bodyParser.json({limit: '10mb'}))
 app.use(bodyParser.urlencoded({limit: '10mb', extended: true}))
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
