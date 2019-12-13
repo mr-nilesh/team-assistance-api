@@ -1,7 +1,7 @@
 // @ts-ignore
 import cookieParser = require('cookie-parser');
 // @ts-ignore
-import express from 'express';
+import express = require('express');
 // @ts-ignore
 import logger from 'morgan';
 import path from 'path';
