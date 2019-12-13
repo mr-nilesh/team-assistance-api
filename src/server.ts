@@ -4,9 +4,9 @@ import { Request, Response } from 'express';
 import logger from 'morgan';
 import path from 'path';
 import BaseRouter from './routes';
-import * as models from '@models';
 import mongoose from 'mongoose';
 import bodyParser = require('body-parser');
+import config from './config/development';
 
 const GLOBAL_VARS:any = global;
 // Init express
@@ -26,13 +26,13 @@ app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', BaseRouter);
-
-mongoose.connect('mongodb://localhost:27017/team-assistance', {
+const mongoString: any = config.mongoConnectionString;
+mongoose.connect(mongoString, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(
   (data: any) => {
-    console.log('Successfully connected to Mongo.');
+    console.log(`Successfully connected to mongo.`);
   }
 );
 

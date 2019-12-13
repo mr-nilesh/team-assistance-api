@@ -4,7 +4,7 @@ import Handlers from '@handlers';
 // Init shared
 const router = Router();
 
-router.get('/channels', async (req, res) => {
+router.get('/channels', (req, res) => {
   Handlers.SlackHandlers.GetSlackChannels()
     .then((data: any) => {
       res.status(200).send(data.channels);

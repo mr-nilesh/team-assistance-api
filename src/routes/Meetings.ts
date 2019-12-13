@@ -1,10 +1,6 @@
 import { Router } from 'express';
 import Handlers from '@handlers';
-import fs from 'fs';
 import Models from '@models';
-import async = require("async");
-import { reject, resolve } from 'bluebird';
-const { exec } = require('child_process');
 const _ = require('lodash');
 let userData: any = {};
 
