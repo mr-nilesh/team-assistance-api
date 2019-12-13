@@ -35,10 +35,14 @@ async function GetMeeting(id: string) {
   return Models.Meeting.findOne({_id: id})
 }
 
+async function AllMeeting() {
+  return Models.Meeting.find({});
+}
 
 export default {
   DiarizeAudio,
   CreateMeeting,
   GetMeeting,
-  UpdateMeeting
+  UpdateMeeting,
+  AllMeeting
 };

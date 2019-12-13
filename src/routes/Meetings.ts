@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Handlers from '@handlers';
 import Models from '@models';
 const _ = require('lodash');
+const StringDecoder = require('string_decoder').StringDecoder;
 let userData: any = {};
 
 // Init shared
@@ -26,14 +27,43 @@ router.post('/', async (req, res) => {
     });
 });
 
-// router.get('/', async (req, res) => {
-//   Handlers.MeetingHandlers.UpdateMeeting()
-// });
+router.get('/', async (req, res) => {
+  Handlers.MeetingHandlers.AllMeeting()
+    .then((data: any) => {
+      const meetings: any = [];
+      data.forEach((meeting: any) => {
+        const meetingData = {
+          _id: meeting._id,
+          meetingName: meeting.meetingName,
+          startedBy: meeting.startedBy,
+          createdAt: meeting.createdAt,
+          meetingText: ''
+        };
+        if(meeting.meetingText) {
+          meetingData.meetingText = Buffer.from(meeting.meetingText, 'base64').toString()
+        }
+        meetings.push(meetingData);
+      });
+      return res.status(200).send(meetings);
+    }, (err) => {
+      return res.status(204);
+    });
+});
 
-router.get('/meetingId', async (req, res) => {
+router.get('/:meetingId', async (req, res) => {
   Handlers.MeetingHandlers.GetMeeting(req.params.meetingId)
     .then((data: any) => {
-      res.status(200).send(data);
+      const meetingData = {
+        _id: data._id,
+        meetingName: data.meetingName,
+        startedBy: data.startedBy,
+        createdAt: data.createdAt,
+        meetingText: ''
+      };
+      if(data.meetingText) {
+        meetingData.meetingText = Buffer.from(data.meetingText, 'base64').toString()
+      }
+      res.status(200).send(meetingData);
     }, (err: any) => {
       res.status(204);
     });
