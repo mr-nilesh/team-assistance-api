@@ -1,5 +1,5 @@
 // @ts-ignore
-import cookieParser from require('cookie-parser');
+import cookieParser = require('cookie-parser');
 // @ts-ignore
 import express from 'express';
 // @ts-ignore
