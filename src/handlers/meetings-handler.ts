@@ -32,11 +32,11 @@ async function UpdateMeeting(id: string, meetingObj: any) {
 }
 
 async function GetMeeting(id: string) {
-  return Models.Meeting.findOne({_id: id})
+  return Models.Meeting.findOne({_id: id}).populate('User')
 }
 
 async function AllMeeting() {
-  return Models.Meeting.find({});
+  return Models.Meeting.find({}).populate('User');
 }
 
 export default {

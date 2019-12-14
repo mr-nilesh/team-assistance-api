@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import Handlers from '@handlers';
 import Models from '@models';
+import mongoose from 'mongoose';
 const _ = require('lodash');
-const StringDecoder = require('string_decoder').StringDecoder;
 let userData: any = {};
 
 // Init shared
@@ -16,7 +16,7 @@ router.use((req, res, next)  => {
 router.post('/', async (req, res) => {
   const meetingObj = {
     meetingName: req.body.meetingName,
-    startedBy: req.body.startedBy,
+    startedBy: mongoose.Types.ObjectId(req.body.startedBy),
     createdAt: new Date()
   };
   Handlers.MeetingHandlers.CreateMeeting(meetingObj)
@@ -36,12 +36,12 @@ router.get('/', async (req, res) => {
           _id: meeting._id,
           meetingName: meeting.meetingName,
           startedBy: meeting.startedBy,
-          createdAt: meeting.createdAt,
-          meetingText: ''
+          createdAt: meeting.createdAt
+          // meetingText: ''
         };
-        if(meeting.meetingText) {
-          meetingData.meetingText = Buffer.from(meeting.meetingText, 'base64').toString()
-        }
+        // if(meeting.meetingText) {
+        //   meetingData.meetingText = Buffer.from(meeting.meetingText, 'base64').toString()
+        // }
         meetings.push(meetingData);
       });
       return res.status(200).send(meetings);
@@ -53,7 +53,7 @@ router.get('/', async (req, res) => {
 router.get('/:meetingId', async (req, res) => {
   Handlers.MeetingHandlers.GetMeeting(req.params.meetingId)
     .then((data: any) => {
-      const meetingData = {
+      const meetingData: any = {
         _id: data._id,
         meetingName: data.meetingName,
         startedBy: data.startedBy,
@@ -61,7 +61,10 @@ router.get('/:meetingId', async (req, res) => {
         meetingText: ''
       };
       if(data.meetingText) {
-        meetingData.meetingText = Buffer.from(data.meetingText, 'base64').toString()
+        meetingData.meetingText = Buffer.from(data.meetingText, 'base64').toString();
+      }
+      if(meetingData.meetingAudio) {
+        meetingData.meetingAudio = Buffer.from(data.meetingAudio, 'base64').toString('base64');
       }
       res.status(200).send(meetingData);
     }, (err: any) => {
