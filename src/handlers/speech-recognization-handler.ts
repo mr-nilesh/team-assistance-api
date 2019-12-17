@@ -163,55 +163,57 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
       async (err) => {
         fs.appendFile('speech-output.txt', '', (err: any) => {});
         let previousSpeaker: string = '';
-        await exec(`ffmpeg -i sample-audio-test.mp3  -vn -ar 44100 -ac 2 -b:a 256k sample-audio.mp3`);
-        await generateAudioChunks(segments, async (segment: any, index: number) => {
-          return new Promise((resolve: any, reject: any) => {
-            exec(`ffmpeg -i sample-audio.mp3 -ss ${segment.start} -to ${segment.end} -c copy sample-audio-${index}.mp3`, (err: any, stdout: any, stderr: any) => {
-              console.log(`Generated sample-audio-${index}.mp3 file.`);
-              setTimeout(() => {
-                Handlers.SpeechRecognizationHandlers.ConvertAudioToTextSync(`sample-audio-${index}.mp3`)
-                  .then((data: any) => {
-                    if(data && data.length > 0) {
-                      const speackerName = userData[segment.speaker_id] || 'Someone';
-                      let speakerSaidStr: string = ''; 
-                      if(speackerName !== previousSpeaker) {
-                        speakerSaidStr = `${speackerName} said:`;
+        await exec(`ffmpeg -i sample-audio-test.mp3 -vn -ar 44100 -ac 2 -b:a 256k sample-audio.mp3`);
+        setTimeout(async () => {
+          await generateAudioChunks(segments, async (segment: any, index: number) => {
+            return new Promise((resolve: any, reject: any) => {
+              exec(`ffmpeg -i sample-audio.mp3 -ss ${segment.start} -to ${segment.end} -c copy sample-audio-${index}.mp3`, (err: any, stdout: any, stderr: any) => {
+                console.log(`Generated sample-audio-${index}.mp3 file.`);
+                setTimeout(() => {
+                  Handlers.SpeechRecognizationHandlers.ConvertAudioToTextSync(`sample-audio-${index}.mp3`)
+                    .then((data: any) => {
+                      if(data && data.length > 0) {
+                        const speackerName = userData[segment.speaker_id] || 'Someone';
+                        let speakerSaidStr: string = ''; 
+                        if(speackerName !== previousSpeaker) {
+                          speakerSaidStr = `${speackerName} said:`;
+                        }
+                        previousSpeaker = speackerName;
+                        fs.appendFile('speech-output.txt',`${speakerSaidStr} ${data}\n`, (err: any) => {});
+                        resolve(data);
+                      } else {
+                        resolve(data);
                       }
-                      previousSpeaker = speackerName;
-                      fs.appendFile('speech-output.txt',`${speakerSaidStr} ${data}\n`, (err: any) => {});
-                      resolve(data);
-                    } else {
-                      resolve(data);
-                    }
-                  }, (err: any) => {
-                    console.log('ERROR', err);
-                    reject(err);
-                  });
-              }, 5000);
+                    }, (err: any) => {
+                      console.log('ERROR', err);
+                      reject(err);
+                    });
+                }, 5000);
+              });
             });
           });
-        });
-        const fileData = fs.readFileSync('speech-output.txt');
-        const base64FileString = fileData.toString('base64');
+          const fileData = fs.readFileSync('speech-output.txt');
+          const base64FileString = fileData.toString('base64');
 
-        const updateUserObj: any = {
-          meetingText: Buffer.from(base64FileString, 'base64'),
-          meetingAudio: Buffer.from(base64Audio, 'base64')
-        };
-        Handlers.MeetingHandlers.UpdateMeeting(meetingId, updateUserObj)
-          .then((data: any) => {
-            console.log('Meeting note added to collection successfully.');
-          })
-        console.log('Finished converting audio to speech.');
-        if(slackChannel) {
-          console.log('Posting result to slack.');
-          sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt')
-          .then((data: any) => {
-            console.log('Upload file to slack channel response: ', data);
-          }, (err: any) => {
-            console.log('Error while uploading file to slack channel: ', err);
-          });
-        }
+          const updateUserObj: any = {
+            meetingText: Buffer.from(base64FileString, 'base64'),
+            meetingAudio: Buffer.from(base64Audio, 'base64')
+          };
+          Handlers.MeetingHandlers.UpdateMeeting(meetingId, updateUserObj)
+            .then((data: any) => {
+              console.log('Meeting note added to collection successfully.');
+            })
+          console.log('Finished converting audio to speech.');
+          if(slackChannel) {
+            console.log('Posting result to slack.');
+            sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt')
+            .then((data: any) => {
+              console.log('Upload file to slack channel response: ', data);
+            }, (err: any) => {
+              console.log('Error while uploading file to slack channel: ', err);
+            });
+          }
+        }, 3000);
       }
     );
   });
