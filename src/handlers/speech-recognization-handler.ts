@@ -163,8 +163,7 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
       async (err) => {
         fs.appendFile('speech-output.txt', '', (err: any) => {});
         let previousSpeaker: string = '';
-        await exec(`ffmpeg -i sample-audio-test.mp3 -vn -ar 44100 -ac 2 -b:a 256k sample-audio.mp3`);
-        setTimeout(async () => {
+        exec(`ffmpeg -i sample-audio-test.mp3 -vn -ar 44100 -ac 2 -b:a 256k sample-audio.mp3`, async (err: any, stdout: any, stderr: any) => {
           await generateAudioChunks(segments, async (segment: any, index: number) => {
             return new Promise((resolve: any, reject: any) => {
               exec(`ffmpeg -i sample-audio.mp3 -ss ${segment.start} -to ${segment.end} -c copy sample-audio-${index}.mp3`, (err: any, stdout: any, stderr: any) => {
@@ -213,7 +212,7 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
               console.log('Error while uploading file to slack channel: ', err);
             });
           }
-        }, 3000);
+        });
       }
     );
   });
@@ -239,10 +238,30 @@ async function sendMessageToChannel(channelId: string, meetingName: string, text
   return Handlers.SlackHandlers.UploadFileToChannel(formData)
 }
 
+async function GetUsersEmotions(postObj: any) {
+  const requestOptions = {
+    method: 'POST',
+    uri: `https://proxy.api.deepaffects.com/audio/generic/api/v2/sync/recognise_emotion?apikey=${config.deepAffectsAPIKey}`,
+    body: postObj,
+    json: true,
+    headers: {
+      'apikey': config.deepAffectsAPIKey
+    }
+  };
+
+  return request.post(requestOptions)
+    .then((data: any) => {
+      return data;
+    }, (err: any) => {
+      return err;
+    });
+}
+
 export default {
   EnrollUser,
   SpeechToText,
   ConvertAudioToText,
   ConvertAudioToTextSync,
-  ProcessAudioFile
+  ProcessAudioFile,
+  GetUsersEmotions
 };
