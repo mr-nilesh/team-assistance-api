@@ -6,6 +6,7 @@ export interface IUser extends Document {
   speechRecognizationID: string;
   enrollmentStatus: string;
   enrollmentAudio: string;
+  noOfTimes?: number
 }
 
 const UserSchema: Schema = new Schema({
@@ -13,7 +14,8 @@ const UserSchema: Schema = new Schema({
   mobile               : { type: String, required: true },
   speechRecognizationID: { type: String, required: false },
   enrollmentStatus     : { type: String, required: false },
-  enrollmentAudio      : { data: Buffer, contentType: String }
+  enrollmentAudio      : { data: Buffer, contentType: String },
+  noOfTimes            : { data: Number, required: false }
 });
 
 // Export the model and return your IUser interface

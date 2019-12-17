@@ -22,7 +22,8 @@ router.post('/', async (req, res) => {
         data._id,
         {
           enrollmentStatus: data.enrollmentStatus,
-          speechRecognizationID: data._id
+          speechRecognizationID: data._id,
+          noOfTimes: 1
         }
       ).then(() => {
         res.status(200).send(data);

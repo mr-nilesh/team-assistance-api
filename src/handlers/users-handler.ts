@@ -103,10 +103,25 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
         .then((daResponse: any) => {
           if (daResponse.message === 'Success') {
             console.log(`User ${data.fullName} enrolled successfully.`);
+            let noOfTimes = data.noOfTimes;
+            if(data.noOfTimes < 4) {
+              noOfTimes++;
+            }
+            // If previous enrollment status is Pending make it Success. Also update no of times user enrolled.
+            if(data.enrollmentStatus === 'Pending') {
+              Models.User.update({_id: id}, {enrollmentStatus: 'Success', noOfTimes: noOfTimes}, {new: true})
+              .then((updateRes: any) => {
+                return updateRes;
+              });
+            } else { // If already succeed only update no of times user enrolled.
+              Models.User.update({_id: id}, {noOfTimes: noOfTimes}, {new: true})
+              .then((updateRes: any) => {
+                return updateRes;
+              });
+            }
+          } else {
+            return data;
           }
-          const copyOfUser = JSON.parse(JSON.stringify(data));
-          copyOfUser.enrollmentStatus = daResponse.message
-          return copyOfUser;
         });
       } else {
         return data;
