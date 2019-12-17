@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
   }).then((data) => {
     if(data.enrollmentStatus === 'Success') {
       Handlers.UserHandlers.UpdateUser(
-        data.id,
+        data._id,
         {
           enrollmentStatus: data.enrollmentStatus,
           speechRecognizationID: data.id

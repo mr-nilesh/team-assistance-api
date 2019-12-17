@@ -72,6 +72,62 @@ router.get('/:meetingId', async (req, res) => {
     });
 });
 
+
+router.post('/:meetingId', async (req, res) => {
+  // const speechToTextObj = {
+  //   encoding: 'FLAC',
+  //   languageCode: 'en-US',
+  //   content: req.body.meetingAudio,
+  //   sampleRate: 8000,
+  //   enableSpeakerDiarization: true,
+  //   enablePunctuation: true,
+  //   audioType: "callcenter"
+  // };
+  Handlers.MeetingHandlers.GetMeeting(req.params.meetingId)
+  .then((data: any) => {
+    const meetingData = data;
+    const slackChannel = req.body.slackChannel;
+    Models.User.find({})
+      .then((users) => {
+        if(users && users.length > 0) {
+          let userIDs: any = [];
+          users.forEach(user => {
+            userIDs.push(user.id);
+            userData[user.id] = user.fullName;
+          });
+          const speechToTextObj = {
+            sampleRate: 44100,
+            encoding: "FLAC",
+            languageCode: "en-US",
+            speakerIds: userIDs,
+            content: req.body.meetingAudio
+            // enablePunctuation: true,
+            // enableSpeakerDiarization: true
+            // doVad: true
+            // speakerCount: 3
+          }
+          Handlers.MeetingHandlers.DiarizeAudio(speechToTextObj)
+          .then((data: any) => {
+            if(data.segments) {
+              Handlers.SpeechRecognizationHandlers.ProcessAudioFile(req.body.meetingAudio, data.segments, slackChannel, meetingData, userData, req.params.meetingId);
+              return res.status(200).send({data: 'Processing audio file.'});
+            } else {
+              return res.status(400).send(data.error);
+            }
+          }, (err: any) => {
+            return res.status(500).send(err);
+          });
+        } else {
+          res.status(204).send('No users found.');
+        }
+      });
+  }, (err) => {
+    res.status(200).send('Meeting now found.');
+  });
+});
+
+
+
 router.put('/:meetingId', async (req, res) => {
   // const speechToTextObj = {
   //   encoding: 'FLAC',
@@ -95,7 +151,7 @@ router.put('/:meetingId', async (req, res) => {
             userData[user.id] = user.fullName;
           });
           const speechToTextObj = {
-            sampleRate: 8000,
+            sampleRate: 44100,
             encoding: "FLAC",
             languageCode: "en-US",
             speakerIds: userIDs,

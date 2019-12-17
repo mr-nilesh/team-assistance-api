@@ -43,7 +43,6 @@ async function CreateUser({
               languageCode: 'en-US',
               speakerId: data.id
             };
-            console.log('Enrolling user...', enrollObj);
             return Handlers.SpeechRecognizationHandlers.EnrollUser(enrollObj)
             .then((daResponse: any) => {
               if (daResponse.message === 'Success') {
