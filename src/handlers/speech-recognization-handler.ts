@@ -153,7 +153,7 @@ async function ConvertAudioToTextSync(filePath: any) {
 
 async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel: string, meetingData: any, userData: any, meetingId: string) {
   console.log('Processing audio file. Removing previous audio files.');
-  exec(`rm -rf sample-audio-*.mp3 speech-output.txt`, (err: any) => {
+  exec(`rm -rf sample-audio.mp3 sample-audio-*.mp3 speech-output.txt`, (err: any) => {
     fs.writeFile(
       'sample-audio-test.mp3',
       Buffer.from(base64Audio, 'base64'),
