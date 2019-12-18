@@ -145,7 +145,7 @@ router.put('/:meetingId', async (req, res) => {
     const meetingData = data;
     const slackChannel = req.body.slackChannel;
     console.log('Getting all the users to provide in diarize API.');
-    Models.User.find({})
+    Models.User.find({enrollmentStatus: 'Success'})
       .then((users) => {
         console.log('Got all the users.');
         if(users && users.length > 0) {
