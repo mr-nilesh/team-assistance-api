@@ -4,7 +4,7 @@ import fs from 'fs';
 import Handlers from '@handlers';
 
 const {exec} = require('child_process');
-const {BadLanguageFilter} = require('bad-language-filter');
+const BadLanguageFilter = require('bad-language-filter');
 
 async function EnrollUser(enrollObj: any) {
   const requestOptions = {
@@ -175,7 +175,7 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
                       if (data && data.length > 0) {
                         // Bad language filter
                         const filter = new BadLanguageFilter();
-                        filter.replaceWords(data, '***');
+                        data = filter.replaceWords(data, '*** ');
     
                         const speackerName = userData[segment.speaker_id] || 'Someone';
                         let speakerSaidStr: string = '';
