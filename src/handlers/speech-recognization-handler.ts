@@ -3,7 +3,8 @@ import config from '../config/development';
 import fs from 'fs';
 import Handlers from '@handlers';
 
-const { exec } = require('child_process');
+const {exec} = require('child_process');
+const {BadLanguageFilter} = require('bad-language-filter');
 
 async function EnrollUser(enrollObj: any) {
   const requestOptions = {
@@ -34,7 +35,7 @@ async function SpeechToText(postObj: any) {
       'apikey': config.deepAffectsAPIKey
     }
   };
-
+  
   return request.post(requestOptions)
     .then((data: any) => {
       return data;
@@ -62,7 +63,7 @@ async function ConvertAudioToText(filePath: any) {
     const fileName = path.basename(filePath);
   
     await bucket.upload(filePath);
- 
+  
     return `gs://${bucketName}/${fileName}`;
   };
   
@@ -98,7 +99,7 @@ async function ConvertAudioToText(filePath: any) {
             .join('\n');
           console.log(`Transcription: ${transcription}`);
           return transcription;
-        })
+        });
     })
     .catch(err => {
       console.error('ERROR:', err);
@@ -113,7 +114,6 @@ async function ConvertAudioToTextSync(filePath: any) {
   
   // Creates a client
   const speechClient = new speech.SpeechClient();
-  
   
   // Reads a local audio file and converts it to base64
   const file = fs.readFileSync(filePath);
@@ -133,7 +133,7 @@ async function ConvertAudioToTextSync(filePath: any) {
     audio,
     config,
   };
- 
+  
   // Detects speech in the audio file
   return speechClient
     .recognize(request)
@@ -161,7 +161,8 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
         encoding: 'base64',
       },
       async (err) => {
-        fs.appendFile('speech-output.txt', '', (err: any) => {});
+        fs.appendFile('speech-output.txt', '', (err: any) => {
+        });
         let previousSpeaker: string = '';
         exec(`ffmpeg -i sample-audio-test.mp3 -vn -ar 44100 -ac 2 -b:a 256k sample-audio.mp3`, async (err: any, stdout: any, stderr: any) => {
           await generateAudioChunks(segments, async (segment: any, index: number) => {
@@ -171,14 +172,19 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
                 setTimeout(() => {
                   Handlers.SpeechRecognizationHandlers.ConvertAudioToTextSync(`sample-audio-${index}.mp3`)
                     .then((data: any) => {
-                      if(data && data.length > 0) {
+                      if (data && data.length > 0) {
+                        // Bad language filter
+                        const filter = new BadLanguageFilter();
+                        filter.replaceWords(data, '***');
+    
                         const speackerName = userData[segment.speaker_id] || 'Someone';
-                        let speakerSaidStr: string = ''; 
-                        if(speackerName !== previousSpeaker) {
+                        let speakerSaidStr: string = '';
+                        if (speackerName !== previousSpeaker) {
                           speakerSaidStr = `${speackerName} said:`;
                         }
                         previousSpeaker = speackerName;
-                        fs.appendFile('speech-output.txt',`${speakerSaidStr} ${data}\n`, (err: any) => {});
+                        fs.appendFile('speech-output.txt', `${speakerSaidStr} ${data}\n`, (err: any) => {
+                        });
                         resolve(data);
                       } else {
                         resolve(data);
@@ -193,7 +199,7 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
           });
           const fileData = fs.readFileSync('speech-output.txt');
           const base64FileString = fileData.toString('base64');
-
+  
           const updateUserObj: any = {
             meetingText: Buffer.from(base64FileString, 'base64'),
             updatedMeetingText: Buffer.from(base64FileString, 'base64'),
@@ -202,16 +208,16 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
           Handlers.MeetingHandlers.UpdateMeeting(meetingId, updateUserObj)
             .then((data: any) => {
               console.log('Meeting note added to collection successfully.');
-            })
+            });
           console.log('Finished converting audio to speech.');
-          if(slackChannel) {
+          if (slackChannel) {
             console.log('Posting result to slack.');
             sendMessageToChannel(slackChannel, meetingData.meetingName, 'speech-output.txt')
-            .then((data: any) => {
-              console.log('Upload file to slack channel response: ', data);
-            }, (err: any) => {
-              console.log('Error while uploading file to slack channel: ', err);
-            });
+              .then((data: any) => {
+                console.log('Upload file to slack channel response: ', data);
+              }, (err: any) => {
+                console.log('Error while uploading file to slack channel: ', err);
+              });
           }
         });
       }
@@ -221,13 +227,13 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
 
 async function generateAudioChunks(segments: any, callback: any) {
   console.log('Before for loop.');
-  for(let index=0; index < segments.length; index++) {
+  for (let index = 0; index < segments.length; index++) {
     console.log('await index:', index);
     await callback(segments[index], index, segments);
     console.log('finished index:', index);
   }
   console.log('After for loop.');
-
+  
 }
 
 async function sendMessageToChannel(channelId: string, meetingName: string, textFile: string) {
@@ -236,7 +242,7 @@ async function sendMessageToChannel(channelId: string, meetingName: string, text
     filename: meetingName,
     channels: channelId
   };
-  return Handlers.SlackHandlers.UploadFileToChannel(formData)
+  return Handlers.SlackHandlers.UploadFileToChannel(formData);
 }
 
 async function GetUsersEmotions(postObj: any) {
@@ -249,7 +255,7 @@ async function GetUsersEmotions(postObj: any) {
       'apikey': config.deepAffectsAPIKey
     }
   };
-
+  
   return request.post(requestOptions)
     .then((data: any) => {
       return data;
