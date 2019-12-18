@@ -87,10 +87,11 @@ async function GetUser({
 }
 
 async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Promise<IUser> {
+  console.log('Finding and updating user...');
   return Models.User.findOneAndUpdate({_id: id}, updateObj, {new: true})
     .then((data: any) => {
+      console.log('User updated successfully.');
       if(enrollmentObj.enrollmentAudio) {
-        console.log('User updated successfully.');
         const enrollObj = {
           content: enrollmentObj.enrollmentAudio,
           sampleRate: 44100,
@@ -120,6 +121,7 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
               });
             }
           } else {
+            console.log('Error while enrolling user: ', daResponse);
             return data;
           }
         });

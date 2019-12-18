@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
         res.status(200).send(updatedUser);
       });
     } else {
-      res.status(200).send(data);
+      res.status(400).send(data);
     }
   }, (err) => {
     res.status(500).send(err);
