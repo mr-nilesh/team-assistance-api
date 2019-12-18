@@ -128,6 +128,7 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
       }
     })
     .catch((error: Error) => {
+      console.log('Error while updating user:', error);
       return 'No records found.';
     });
 }
