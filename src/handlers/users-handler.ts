@@ -110,13 +110,17 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
             }
             // If previous enrollment status is Pending make it Success. Also update no of times user enrolled.
             if(data.enrollmentStatus === 'Pending') {
-              Models.User.update({_id: id}, {enrollmentStatus: 'Success', noOfTimes: noOfTimes}, {new: true})
+              console.log('Current enrollment status is Pending so changing it to Success.');
+              Models.User.findOneAndUpdate({_id: id}, {enrollmentStatus: 'Success', noOfTimes: noOfTimes}, {new: true})
               .then((updateRes: any) => {
+                console.log('After changing Pending status to Success the response is:', updateRes);
                 return updateRes;
               });
             } else { // If already succeed only update no of times user enrolled.
-              Models.User.update({_id: id}, {noOfTimes: noOfTimes}, {new: true})
+              console.log('Current status is Success so only change noOfTimes.');
+              Models.User.findOneAndUpdate({_id: id}, {noOfTimes: noOfTimes}, {new: true})
               .then((updateRes: any) => {
+                console.log('After updating noOfTimes the response is:', updateRes);
                 return updateRes;
               });
             }
