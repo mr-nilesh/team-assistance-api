@@ -27,9 +27,9 @@ router.post('/', async (req, res) => {
           speechRecognizationID: data._id,
           noOfTimes: 1
         }
-      ).then(() => {
+      ).then((updatedUser) => {
         console.log('User updated successfully with enrolment status success.');
-        res.status(200).send(data);
+        res.status(200).send(updatedUser);
       });
     } else {
       res.status(200).send(data);
