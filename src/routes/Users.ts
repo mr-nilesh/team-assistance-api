@@ -26,7 +26,8 @@ router.post('/', async (req, res) => {
           enrollmentStatus: data.enrollmentStatus,
           speechRecognizationID: data._id,
           noOfTimes: 1
-        }
+        },
+        {}
       ).then((updatedUser) => {
         console.log('User updated successfully with enrolment status success.', updatedUser);
         res.status(200).send(updatedUser);
