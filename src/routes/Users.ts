@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
         res.status(200).send(updatedUser);
       });
     } else {
-      res.status(400).send(data);
+      res.status(200).send(data);
     }
   }, (err) => {
     res.status(500).send(err);
@@ -66,7 +66,7 @@ router.put('/:id', async (req, res) => {
       enrollmentAudio: req.body.enrollmentAudio
     }
   );
-  return res.status(200).send(user);
+  return res.status(200).send({user});
 });
 
 export default router;
