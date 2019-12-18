@@ -28,7 +28,7 @@ async function CreateMeeting(meetingObj: any) {
 }
 
 async function UpdateMeeting(id: string, meetingObj: any) {
-  return Models.Meeting.findOneAndUpdate({_id: id}, meetingObj)
+  return Models.Meeting.findOneAndUpdate({_id: id}, meetingObj, {new: true})
 }
 
 async function GetMeeting(id: string) {

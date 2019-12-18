@@ -196,6 +196,7 @@ async function ProcessAudioFile(base64Audio: any, segments: any[], slackChannel:
 
           const updateUserObj: any = {
             meetingText: Buffer.from(base64FileString, 'base64'),
+            updatedMeetingText: Buffer.from(base64FileString, 'base64'),
             meetingAudio: Buffer.from(base64Audio, 'base64')
           };
           Handlers.MeetingHandlers.UpdateMeeting(meetingId, updateUserObj)

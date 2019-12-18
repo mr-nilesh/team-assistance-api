@@ -10,6 +10,7 @@ router.use((req, res, next)  => {
 });
 
 router.post('/', async (req, res) => {
+  console.log('Adding new user.');
   Handlers.UserHandlers.CreateUser({
     fullName: req.body.fullName,
     mobile: req.body.mobile,
@@ -18,6 +19,7 @@ router.post('/', async (req, res) => {
     enrollmentAudio: req.body.enrollmentAudio
   }).then((data) => {
     if(data.enrollmentStatus === 'Success') {
+      console.log('Updating user with enrollment status success.');
       Handlers.UserHandlers.UpdateUser(
         data._id,
         {
@@ -26,6 +28,7 @@ router.post('/', async (req, res) => {
           noOfTimes: 1
         }
       ).then(() => {
+        console.log('User updated successfully with enrolment status success.');
         res.status(200).send(data);
       });
     } else {

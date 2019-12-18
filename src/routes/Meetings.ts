@@ -60,8 +60,8 @@ router.get('/:meetingId', async (req, res) => {
         createdAt: data.createdAt,
         meetingText: ''
       };
-      if(data.meetingText) {
-        meetingData.meetingText = Buffer.from(data.meetingText, 'base64').toString();
+      if(data.updatedMeetingText) {
+        meetingData.meetingText = Buffer.from(data.updatedMeetingText, 'base64').toString();
       }
       if(meetingData.meetingAudio) {
         meetingData.meetingAudio = Buffer.from(data.meetingAudio, 'base64').toString('base64');
@@ -138,40 +138,68 @@ router.put('/:meetingId', async (req, res) => {
   //   enablePunctuation: true,
   //   audioType: "callcenter"
   // };
+  console.log('Checking meeting exist or not?');
   Handlers.MeetingHandlers.GetMeeting(req.params.meetingId)
   .then((data: any) => {
+    console.log('Found meeting.');
     const meetingData = data;
     const slackChannel = req.body.slackChannel;
+    console.log('Getting all the users to provide in diarize API.');
     Models.User.find({})
       .then((users) => {
+        console.log('Got all the users.');
         if(users && users.length > 0) {
           let userIDs: any = [];
           users.forEach(user => {
             userIDs.push(user.id);
             userData[user.id] = user.fullName;
           });
-          const speechToTextObj = {
-            sampleRate: 44100,
-            encoding: "FLAC",
-            languageCode: "en-US",
-            speakerIds: userIDs,
-            content: req.body.meetingAudio
-            // enablePunctuation: true,
-            // enableSpeakerDiarization: true
-            // doVad: true
-            // speakerCount: 3
-          }
-          Handlers.MeetingHandlers.DiarizeAudio(speechToTextObj)
-          .then((data: any) => {
-            if(data.segments) {
-              Handlers.SpeechRecognizationHandlers.ProcessAudioFile(req.body.meetingAudio, data.segments, slackChannel, meetingData, userData, req.params.meetingId);
-              return res.status(200).send({data: 'Processing audio file.'});
-            } else {
-              return res.status(400).send(data.error);
+          if(req.body.meetingAudio) {
+            const speechToTextObj = {
+              sampleRate: 44100,
+              encoding: "FLAC",
+              languageCode: "en-US",
+              speakerIds: userIDs,
+              content: req.body.meetingAudio
+              // enablePunctuation: true,
+              // enableSpeakerDiarization: true
+              // doVad: true
+              // speakerCount: 3
             }
-          }, (err: any) => {
-            return res.status(500).send(err);
-          });
+            Handlers.MeetingHandlers.DiarizeAudio(speechToTextObj)
+            .then((data: any) => {
+              if(data.segments) {
+                Handlers.SpeechRecognizationHandlers.ProcessAudioFile(req.body.meetingAudio, data.segments, slackChannel, meetingData, userData, req.params.meetingId);
+                return res.status(200).send({data: 'Processing audio file.'});
+              } else {
+                return res.status(400).send(data.error);
+              }
+            }, (err: any) => {
+              return res.status(500).send(err);
+            });
+          } else if(req.body.meetingText) {
+            console.log('Updating meeting note...');
+            Handlers.MeetingHandlers.UpdateMeeting(req.params.meetingId, {updatedMeetingText: req.body.meetingText})
+              .then((updatedMeeting: any) => {
+                console.log('Meeting note updated successfully.', updatedMeeting);
+                const meetingData: any = {
+                  _id: updatedMeeting._id,
+                  meetingName: updatedMeeting.meetingName,
+                  startedBy: updatedMeeting.startedBy,
+                  createdAt: updatedMeeting.createdAt,
+                  meetingText: ''
+                };
+                if(updatedMeeting.updatedMeetingText) {
+                  meetingData.meetingText = Buffer.from(updatedMeeting.updatedMeetingText, 'base64').toString();
+                }
+                res.status(200).send(meetingData);
+              }, (err: any) => {
+                console.log('Error while updating meeting note:', err);
+                res.status(500).send(err);
+              });
+          } else {
+            res.status(400).send('Please pass proper fields in body.');
+          }
         } else {
           res.status(204).send('No users found.');
         }
