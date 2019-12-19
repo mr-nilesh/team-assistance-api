@@ -44,14 +44,18 @@ async function CreateUser({
               speakerId: data.id
             };
             return Handlers.SpeechRecognizationHandlers.EnrollUser(enrollObj)
-            .then((daResponse: any) => {
-              if (daResponse.message === 'Success') {
-                console.log(`User ${fullName} enrolled successfully.`);
-              }
-              const copyOfUser = JSON.parse(JSON.stringify(data));
-              copyOfUser.enrollmentStatus = daResponse.message
-              return copyOfUser;
-            });
+              .then((daResponse: any) => {
+                const copyOfUser = JSON.parse(JSON.stringify(data));
+                if (daResponse.message === 'Success') {
+                  console.log(`User ${fullName} enrolled successfully.`);
+                  copyOfUser.enrollmentStatus = daResponse.message;
+                }
+                return copyOfUser;
+              })
+              .catch((daError: any) => {
+                console.log('Error while enrolling user: ', daError);
+                return daError;
+              });
           })
           .catch((error: Error) => {
             throw error;
@@ -109,7 +113,7 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
               noOfTimes++;
             }
             // If previous enrollment status is Pending make it Success. Also update no of times user enrolled.
-            if(data.enrollmentStatus === 'Pending') {
+            if (data.enrollmentStatus === 'Pending') {
               console.log('Current enrollment status is Pending so changing it to Success.');
               return Models.User.findOneAndUpdate({_id: id}, {enrollmentStatus: 'Success', noOfTimes: noOfTimes}, {new: true})
               .then((updateRes: any) => {
@@ -128,6 +132,9 @@ async function UpdateUser(id: string, updateObj: any, enrollmentObj?: any): Prom
             console.log('Error while enrolling user: ', daResponse);
             return data;
           }
+        }).catch((daErr) => {
+          console.log("User handlers DA enrollment error :: ", daErr);
+          throw daErr;
         });
       } else {
         return data;

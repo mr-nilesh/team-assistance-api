@@ -31,9 +31,16 @@ router.post('/', async (req, res) => {
       ).then((updatedUser) => {
         console.log('User updated successfully with enrolment status success.', updatedUser);
         res.status(200).send(updatedUser);
+      }).catch((err) => {
+        res.status(500).send(err);
       });
     } else {
-      res.status(200).send(data);
+      console.log("User enrollment failed :: ", data);
+      // if (data.enrollmentStatus !== 'Pending') {
+      //   res.status(400).send(data);
+      // } else {
+        res.status(200).send(data);
+      // }
     }
   }, (err) => {
     res.status(500).send(err);
